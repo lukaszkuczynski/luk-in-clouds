@@ -39,7 +39,11 @@ resource "aws_iam_role_policy" "kinesis_putrecord_policy" {
     "Version": "2012-10-17",
     "Statement": {
         "Effect": "Allow",
-        "Action": "kinesis:PutRecord",
+        "Action": [
+            "firehose:DescribeDeliveryStream",
+            "firehose:PutRecord",
+            "firehose:PutRecordBatch"
+        ],        
         "Resource": "${aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn}"
     }
 }

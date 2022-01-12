@@ -16,7 +16,7 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 }
 
 resource "aws_iam_role" "firehose_role" {
-  name = "firehose_test_role"
+  name = "kinesis_firehose_role"
 
   assume_role_policy = <<EOF
 {
@@ -35,22 +35,61 @@ resource "aws_iam_role" "firehose_role" {
 EOF
 }
 
-resource "aws_iam_role" "lambda_iam" {
-  name = "lambda_iam"
-
-  assume_role_policy = <<EOF
+resource "aws_iam_role_policy" "firehose_policy" {
+  name   = "kinesis_firehose_policy"
+  role   = aws_iam_role.firehose_role.id
+  policy = <<EOF
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.bucket.arn}",
+                "${aws_s3_bucket.bucket.arn}/*"
+            ]
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "logs:GetLogEvents",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/kinesisfirehose/*:log-stream:*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutRetentionPolicy",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/kinesisfirehose/*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "kinesis:DescribeStream",
+                "kinesis:GetShardIterator",
+                "kinesis:GetRecords",
+                "kinesis:ListShards"
+            ],
+            "Resource": "${aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn}"
+        }
+    ]
 }
-EOF
+  EOF
 }
