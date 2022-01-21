@@ -102,14 +102,6 @@ resource "aws_vpc" "vpc" {
   cidr_block           = "172.29.0.0/16"
 }
 
-data "aws_security_group" "good_sg" {
-  id = "sg-013014ab2a94258c4"
-}
-
-data "aws_subnet" "good_subnet" {
-  id = "subnet-06708fbe1bcf5b296"
-}
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
 }

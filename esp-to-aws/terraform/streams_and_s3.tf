@@ -8,10 +8,12 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   destination = "extended_s3"
 
   extended_s3_configuration {
-    buffer_size     = 1
-    buffer_interval = 60
-    role_arn        = aws_iam_role.firehose_role.arn
-    bucket_arn      = aws_s3_bucket.bucket.arn
+    buffer_size         = 1
+    buffer_interval     = 60
+    role_arn            = aws_iam_role.firehose_role.arn
+    bucket_arn          = aws_s3_bucket.bucket.arn
+    error_output_prefix = "errors/!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
+    prefix              = "year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
 
     processing_configuration {
       enabled = "true"

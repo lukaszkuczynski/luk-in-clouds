@@ -14,25 +14,33 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
   table_type = "EXTERNAL_TABLE"
 
   parameters = {
-    EXTERNAL                            = "TRUE"
-    "projection.datehour.type"          = "date"
-    "projection.datehour.range"         = "2021/01/01/00,NOW"
-    "projection.datehour.format"        = "yyyy/MM/dd/HH"
-    "projection.datehour.interval"      = 1
-    "projection.datehour.interval.unit" = "HOURS"
-    "projection.enabled"                = "true"
-    "storage.location.template"         = "s3://${aws_s3_bucket.bucket.bucket}/$${datehour}/"
+    EXTERNAL                    = "TRUE"
+    "storage.location.template" = "s3://${aws_s3_bucket.bucket.bucket}/"
 
   }
 
 
   partition_keys {
-    name = "datehour"
-    type = "string"
+    name = "year"
+    type = "int"
+  }
+  partition_keys {
+    name = "month"
+    type = "int"
+  }
+  partition_keys {
+    name = "day"
+    type = "int"
+  }
+  partition_keys {
+    name = "hour"
+    type = "int"
   }
 
+
+
   storage_descriptor {
-    location      = "s3://my-bucket/event-streams/my-stream"
+    location      = "s3://${aws_s3_bucket.bucket.bucket}/"
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
 
@@ -41,7 +49,8 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
       serialization_library = "org.apache.hive.hcatalog.data.JsonSerDe"
 
       parameters = {
-        "serialization.format" = 1
+        "serialization.format"  = 1
+        "ignore.malformed.json" = "true"
       }
     }
 

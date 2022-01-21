@@ -1,5 +1,3 @@
-# before querying get your athena re
-
 athena_result_bucket=$(cd ../terraform && terraform output athena_result_bucket)
 
 # echo $athena_result_bucket
@@ -9,7 +7,7 @@ query_execution_id=$(aws athena start-query-execution \
     --query-execution-context Database=esp2aws,Catalog=AwsDataCatalog \
     --result-configuration OutputLocation=s3://$athena_result_bucket \
     --output text)
-# echo $query_execution_id
+echo $query_execution_id
 
 # thanks to https://stackoverflow.com/questions/43338442/command-line-tool-to-access-amazon-athena
 for i in $(seq 1 30); do
