@@ -56,7 +56,8 @@ data "template_file" "glue_script" {
   template = file("./glue_script.py")
   vars = {
     database               = aws_athena_database.database.name
-    raw_table_name         = aws_glue_catalog_table.aws_glue_catalog_table.name
+    glue_table_raw         = aws_glue_catalog_table.aws_glue_catalog_table.name
+    glue_table_processed   = "sensors"
     processed_data_s3_path = "s3://${aws_s3_bucket.bucket_processed.bucket}/"
   }
 }
