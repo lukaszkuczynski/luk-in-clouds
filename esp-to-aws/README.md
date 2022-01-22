@@ -89,6 +89,10 @@ where device = 'temperature_office'
 order by ts
 ```
 
+After I set up some dashboards it looks like the following:
+![grafana](pics/grafana.png)
+
+
 ## Infrastructure as Code
 To implement the whole infrastructure in your AWS it’s enough to run terraform scripts, so there is no need to implement everything in the AWS console yourself. So no more clicking on windows and following instructions from screenshots. AWS CLI and Terraform is enough to run all modifications on your cloud environment. All services required from this project are possible to implement in your AWS environment with simple
 ```
