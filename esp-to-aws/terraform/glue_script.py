@@ -20,6 +20,8 @@ resolvechoice2 = ResolveChoice.apply(frame = datasource0,
     specs = [
         ("temp","cast:float"),
         ("light","cast:float"),
+        ("humidity","cast:float"),
+        ("pressure","cast:float")
     ],
     transformation_ctx = "resolvechoice2")
 

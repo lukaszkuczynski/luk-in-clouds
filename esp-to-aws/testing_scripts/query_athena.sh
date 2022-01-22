@@ -28,3 +28,4 @@ aws athena get-query-results --query-execution-id $query_execution_id
 # aws s3 cp s3://$athena_result_bucket/$query_execution_id.csv ./athena_result.csv
 # cat ./athena_result.csv
 aws athena get-query-results --query-execution-id $query_execution_id --query ResultSet.Rows[*].Data[*].VarCharValue 
+

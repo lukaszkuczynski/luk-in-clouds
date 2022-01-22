@@ -19,12 +19,12 @@ resource "aws_ecs_cluster" "cluster" {
 
 
 resource "aws_ecs_task_definition" "grafana_service" {
-  family = "service"
+  family = "grafana_service"
 
   requires_compatibilities = ["EXTERNAL", "EC2"]
   network_mode             = "bridge"
-  cpu                      = 1000
-  memory                   = 1000
+  cpu                      = 2000
+  memory                   = 3500
 
   container_definitions = jsonencode([
     {
@@ -162,20 +162,120 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   policy_arn = data.aws_iam_policy.ecs_aws_managed_policy.arn
 }
 
+resource "aws_iam_role_policy" "read_s3_policy" {
+  name = "read_s3_policy"
+  role = aws_iam_role.ecs_instance_role.name
 
-data "aws_iam_role" "ecsInstanceRole" {
-  name = "ecsInstanceRole"
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": {
+        "Effect": "Allow",
+        "Action": [
+            "s3:ListBucket",
+            "s3:GetObject"
+        ],
+        "Resource": [
+            "arn:aws:s3:::${aws_s3_bucket.bucket_processed.bucket}",
+            "arn:aws:s3:::${aws_s3_bucket.bucket_processed.bucket}/*",
+            "arn:aws:s3:::${aws_s3_bucket.bucket.bucket}",
+            "arn:aws:s3:::${aws_s3_bucket.bucket.bucket}/*"
+        ]
+    }
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+  role       = aws_iam_role.ecs_instance_role.id
+}
+# data "aws_iam_role" "ecsInstanceRole" {
+#   name = "ecsInstanceRole"
+# }
+
+resource "aws_iam_role_policy" "athena_glue_read" {
+  name = "athena_glue_read"
+  role = aws_iam_role.ecs_instance_role.name
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AthenaQueryAccess",
+            "Effect": "Allow",
+            "Action": [
+                "athena:ListDatabases",
+                "athena:ListDataCatalogs",
+                "athena:ListWorkGroups",
+                "athena:GetDatabase",
+                "athena:GetDataCatalog",
+                "athena:GetQueryExecution",
+                "athena:GetQueryResults",
+                "athena:GetTableMetadata",
+                "athena:GetWorkGroup",
+                "athena:ListTableMetadata",
+                "athena:StartQueryExecution",
+                "athena:StopQueryExecution",
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "GlueReadAccess",
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:GetPartition",
+                "glue:GetPartitions",
+                "glue:BatchGetPartition"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "AthenaS3Access",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:ListMultipartUploadParts",
+                "s3:AbortMultipartUpload",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::aws-athena-query-results-*"
+            ]
+        }
+    ]
+}  
+
+EOF
+
 }
 
 resource "aws_iam_instance_profile" "ecs_profile" {
   name = "ecs_profile"
-  role = data.aws_iam_role.ecsInstanceRole.name
+  role = aws_iam_role.ecs_instance_role.name
 }
 
 resource "aws_instance" "ecs_instance" {
   ami                         = data.aws_ami.amazon_linux_ecs.id
   associate_public_ip_address = true
-  instance_type               = "t2.small"
+  instance_type               = "t2.medium"
   # vpc_security_group_ids      = [data.aws_security_group.good_sg.id]
   # subnet_id                   = data.aws_subnet.good_subnet.id
   vpc_security_group_ids = [aws_security_group.allow_grafana.id]
