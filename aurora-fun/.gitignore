@@ -1,3 +1,4 @@
 secrets.tf
 .terraform
 *.tfstate
+*.zip

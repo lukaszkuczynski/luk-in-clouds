@@ -2,8 +2,8 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_rds_cluster" "default" {
   cluster_identifier      = "aurora-cluster-demo"
-  engine                  = "aurora-mysql"
-  engine_version          = "5.7.mysql_aurora.2.03.2"
+  engine                  = "aurora"
+  engine_version          = "5.6.mysql_aurora.1.23.4"
   availability_zones      = data.aws_availability_zones.available.names
   database_name           = "auroramysqldb"
   master_username         = "foo"
@@ -13,7 +13,10 @@ resource "aws_rds_cluster" "default" {
   skip_final_snapshot     = true
   vpc_security_group_ids  = [aws_security_group.allow_mysql.id]
 
-  db_subnet_group_name = aws_db_subnet_group.default.name
+  db_subnet_group_name            = aws_db_subnet_group.default.name
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.default.name
+
+  iam_roles = [aws_iam_role.iam_for_aurora.arn]
 
 }
 
@@ -30,6 +33,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   engine              = aws_rds_cluster.default.engine
   engine_version      = aws_rds_cluster.default.engine_version
   publicly_accessible = true
+
 }
 
 resource "aws_security_group" "allow_mysql" {
@@ -63,4 +67,89 @@ module "vpc" {
   public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   enable_dns_hostnames = true
   enable_dns_support   = true
+}
+
+resource "aws_iam_role" "iam_for_aurora" {
+  name = "iam_for_aurora"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "rds.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_rds_cluster_parameter_group" "default" {
+  name        = "rds-cluster-pg"
+  family      = "aurora5.6"
+  description = "RDS default cluster parameter group"
+
+  parameter {
+    name  = "aws_default_lambda_role"
+    value = aws_iam_role.iam_for_aurora.arn
+  }
+
+
+}
+
+
+resource "aws_iam_role_policy" "execute_lambda_for_aurora_policy" {
+  name   = "execute_lambda_for_aurora_policy"
+  role   = aws_iam_role.iam_for_aurora.id
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAuroraToExampleFunction",
+            "Effect": "Allow",
+            "Action": "lambda:InvokeFunction",
+            "Resource": "${aws_lambda_function.aurora_test.arn}"
+        }
+    ]
+}
+  EOF
+}
+
+
+resource "aws_iam_role" "iam_for_lambda" {
+  name = "iam_for_lambda_aurora"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_lambda_function" "aurora_test" {
+  filename      = "./lambda_aurora_test.zip"
+  function_name = "lambda_aurora_test"
+  role          = aws_iam_role.iam_for_lambda.arn
+  handler       = "lambda_function.lambda_handler"
+  timeout       = 180
+
+  source_code_hash = filebase64sha256("./lambda_aurora_test.zip")
+
+  runtime = "python3.8"
 }
