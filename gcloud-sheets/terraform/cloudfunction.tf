@@ -18,11 +18,15 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  entry_point           = "hello_world"
+  entry_point           = "entrypoint"
 
   depends_on = [
     google_storage_bucket_object.archive
   ]
+
+  environment_variables = {
+    SPREADSHEET_ID = var.spreadsheet_id
+  }
 }
 
 # IAM entry for all users to invoke the function
