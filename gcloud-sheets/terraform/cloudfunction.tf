@@ -12,9 +12,9 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "function-test"
   description = "My function"
-  runtime     = "python38"
+  runtime     = "python39"
 
-  available_memory_mb   = 128
+  available_memory_mb   = 512
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
@@ -26,6 +26,8 @@ resource "google_cloudfunctions_function" "function" {
 
   environment_variables = {
     SPREADSHEET_ID = var.spreadsheet_id
+    SHEET_RANGE    = var.sheet_range
+    INDEX_NAME     = var.index_name
   }
 }
 

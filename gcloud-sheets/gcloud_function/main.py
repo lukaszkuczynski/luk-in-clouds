@@ -2,6 +2,21 @@ import os
 from datetime import datetime
 from googleapiclient.discovery import build
 import google.auth
+from google.cloud import datastore
+from datetime import datetime
+from dataextractor import to_action_items
+
+datastore_client = datastore.Client()
+
+
+def store_data(dt, data):
+    index_name = os.getenv("INDEX_NAME")
+    entity = datastore.Entity(key=datastore_client.key(index_name))
+    entity.update({
+        'timestamp': dt,
+        'data': data
+    })
+    datastore_client.put(entity)
 
 
 def entrypoint(request):
@@ -11,24 +26,13 @@ def entrypoint(request):
 
     service = build('sheets', 'v4', credentials=credentials)
     spreadsheet_id = os.getenv("SPREADSHEET_ID")
-
-    start_cell = "A1"
-    end_cell = "C3"
-
+    sheet_range = os.getenv("SHEET_RANGE")
     sheet = service.spreadsheets()
-    range_str = f"{start_cell}:{end_cell}"
+    range_str = sheet_range
     print(f"Getting range {range_str}")
     result = sheet.values().get(spreadsheetId=spreadsheet_id, range=range_str).execute()
     values_all = result.get('values', [])
-    for value in values_all:
-        print(value)
-    return str(values_all)
-
-
-if __name__ == '__main__':
-    # vars = {"users": [{"link":"300300300","caption":"caption"}]}
-    # html = get_template_fill(vars)
-    # print(html)
-    phonebook = read_phonebook()
-    nn = name_numbers_dict("name1", phonebook)
-    print(nn)
+    dtnow = datetime.now()
+    processed_rows = to_action_items(values_all)
+    store_data(dtnow, processed_rows)
+    return str(processed_rows)

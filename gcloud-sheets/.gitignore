@@ -3,3 +3,4 @@ terraform.tfstate
 terraform.tfstate.backup
 *.zip
 secrets.tf
+raw_test_elements.py
