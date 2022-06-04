@@ -28,6 +28,7 @@ def entrypoint(request):
     service = build('sheets', 'v4', credentials=credentials)
     spreadsheet_id = os.getenv("SPREADSHEET_ID")
     sheet_range = os.getenv("SHEET_RANGE")
+    mailsender_function_url = os.getenv("SENDER_FUNCTION_URL")
     sheet = service.spreadsheets()
     range_str = sheet_range
     print(f"Getting range {range_str}")
@@ -40,7 +41,8 @@ def entrypoint(request):
     context = {
         "creation_time": datetime.now(),
         "original_rows": original_rows,
-        "action_items": action_items
+        "action_items": action_items,
+        "mailsender_function_url": mailsender_function_url
     }
     page = get_html_page(context)
     return page

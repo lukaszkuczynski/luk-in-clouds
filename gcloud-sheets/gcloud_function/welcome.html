@@ -1,89 +1,123 @@
-<h1>Schedule sender</h1>
+<!DOCTYPE html>
+<html>
 
-<h3>Created at {{creation_time}}</h3>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $("#sendemails").on("click", function () {
+                url = '{{mailsender_function_url}}'
+                $.getJSON(url, function (data) {
+                    console.log('result is');
+                    console.log(data)
+                });
+            });
+        });
+    </script>
+</head>
 
-
-<h3>Assignment list</h3>
-
-<table>
-
-    <tr>
-        <th>date</th>
-        <th>item</th>
-        <th>name</th>
-        <th>study</th>
-        <th>assistant</th>
-        <th>email_task</th>
-        <th>email_assistant</th>
-    </tr>
-    {% for row in original_rows %}
-    <tr>
-        <td>
-            {{row['date']}}
-        </td>
-        <td>
-            {{row['item']}}
-        </td>
-        <td>
-            {{row['name']}}
-        </td>
-        <td>
-            {{row['study']}}
-        </td>
-        <td>
-            {{row['assistant']}}
-        </td>
-        <td>
-            {{row['email_task']}}
-        </td>
-        <td>
-            {{row['email_assist']}}
-        </td>
-
-    </tr>
-    {% endfor %}
-
-</table>
+<body>
 
 
-<h3>Actions to send</h3>
+    <h1>Schedule sender</h1>
 
-<table>
+    <h3>Created at {{creation_time}}</h3>
 
-    <tr>
-        <th>mail_to</th>
-        <th>topic</th>
-        <th>date</th>
-        <th>item</th>
-        <th>name</th>
-        <th>study</th>
-        <th>template_name</th>
-    </tr>
 
-    {% for action in action_items %}
-    <tr>
-        <td>
-            {{action['mail_to']}}
-        </td>
-        <td>
-            {{action['topic']}}
-        </td>
-        <td>
-            {{action['date']}}
-        </td>
-        <td>
-            {{action['item']}}
-        </td>
-        <td>
-            {{action['name']}}
-        </td>
-        <td>
-            {{action['study']}}
-        </td>
-        <td>
-            {{action['template_name']}}
-        </td>
-    </tr>
-    {% endfor %}
+    <h3>Assignment list</h3>
 
-</table>
+    <table>
+
+        <tr>
+            <th>date</th>
+            <th>item</th>
+            <th>name</th>
+            <th>study</th>
+            <th>assistant</th>
+            <th>email_task</th>
+            <th>email_assistant</th>
+        </tr>
+        {% for row in original_rows %}
+        <tr>
+            <td>
+                {{row['date']}}
+            </td>
+            <td>
+                {{row['item']}}
+            </td>
+            <td>
+                {{row['name']}}
+            </td>
+            <td>
+                {{row['study']}}
+            </td>
+            <td>
+                {{row['assistant']}}
+            </td>
+            <td>
+                {{row['email_task']}}
+            </td>
+            <td>
+                {{row['email_assist']}}
+            </td>
+
+        </tr>
+        {% endfor %}
+
+    </table>
+
+
+    <h3>Actions to send</h3>
+
+    <table>
+
+        <tr>
+            <th>mail_to</th>
+            <th>topic</th>
+            <th>date</th>
+            <th>item</th>
+            <th>name</th>
+            <th>study</th>
+            <th>template_name</th>
+        </tr>
+
+        {% for action in action_items %}
+        <tr>
+            <td>
+                {{action['mail_to']}}
+            </td>
+            <td>
+                {{action['topic']}}
+            </td>
+            <td>
+                {{action['date']}}
+            </td>
+            <td>
+                {{action['item']}}
+            </td>
+            <td>
+                {{action['name']}}
+            </td>
+            <td>
+                {{action['study']}}
+            </td>
+            <td>
+                {{action['template_name']}}
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <button id="sendemails">send it</button>
+    <p></p>
+
+
+</body>
+
+</html>
