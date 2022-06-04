@@ -1,0 +1,89 @@
+<h1>Schedule sender</h1>
+
+<h3>Created at {{creation_time}}</h3>
+
+
+<h3>Assignment list</h3>
+
+<table>
+
+    <tr>
+        <th>date</th>
+        <th>item</th>
+        <th>name</th>
+        <th>study</th>
+        <th>assistant</th>
+        <th>email_task</th>
+        <th>email_assistant</th>
+    </tr>
+    {% for row in original_rows %}
+    <tr>
+        <td>
+            {{row['date']}}
+        </td>
+        <td>
+            {{row['item']}}
+        </td>
+        <td>
+            {{row['name']}}
+        </td>
+        <td>
+            {{row['study']}}
+        </td>
+        <td>
+            {{row['assistant']}}
+        </td>
+        <td>
+            {{row['email_task']}}
+        </td>
+        <td>
+            {{row['email_assist']}}
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+
+<h3>Actions to send</h3>
+
+<table>
+
+    <tr>
+        <th>mail_to</th>
+        <th>topic</th>
+        <th>date</th>
+        <th>item</th>
+        <th>name</th>
+        <th>study</th>
+        <th>template_name</th>
+    </tr>
+
+    {% for action in action_items %}
+    <tr>
+        <td>
+            {{action['mail_to']}}
+        </td>
+        <td>
+            {{action['topic']}}
+        </td>
+        <td>
+            {{action['date']}}
+        </td>
+        <td>
+            {{action['item']}}
+        </td>
+        <td>
+            {{action['name']}}
+        </td>
+        <td>
+            {{action['study']}}
+        </td>
+        <td>
+            {{action['template_name']}}
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>

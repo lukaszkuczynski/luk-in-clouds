@@ -4,7 +4,8 @@ from googleapiclient.discovery import build
 import google.auth
 from google.cloud import datastore
 from datetime import datetime
-from dataextractor import to_action_items
+from dataextractor import to_action_items, to_original_dict
+from printer import get_html_page
 
 datastore_client = datastore.Client()
 
@@ -33,6 +34,11 @@ def entrypoint(request):
     result = sheet.values().get(spreadsheetId=spreadsheet_id, range=range_str).execute()
     values_all = result.get('values', [])
     dtnow = datetime.now()
-    processed_rows = to_action_items(values_all)
-    store_data(dtnow, processed_rows)
-    return str(processed_rows)
+    original_rows = to_original_dict(values_all)
+    store_data(dtnow, original_rows)
+    context = {
+        "creation_time": datetime.now(),
+        "original_rows": original_rows
+    }
+    page = get_html_page(context)
+    return page
