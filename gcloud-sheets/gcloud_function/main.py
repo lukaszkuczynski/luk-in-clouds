@@ -35,10 +35,12 @@ def entrypoint(request):
     values_all = result.get('values', [])
     dtnow = datetime.now()
     original_rows = to_original_dict(values_all)
+    action_items = to_action_items(original_rows)
     store_data(dtnow, original_rows)
     context = {
         "creation_time": datetime.now(),
-        "original_rows": original_rows
+        "original_rows": original_rows,
+        "action_items": action_items
     }
     page = get_html_page(context)
     return page
