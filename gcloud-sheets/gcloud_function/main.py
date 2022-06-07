@@ -6,18 +6,21 @@ from google.cloud import datastore
 from datetime import datetime
 from dataextractor import to_action_items, to_original_dict
 from printer import get_html_page
+import time
 
 datastore_client = datastore.Client()
 
 
 def store_data(dt, data):
     index_name = os.getenv("INDEX_NAME")
-    entity = datastore.Entity(key=datastore_client.key(index_name))
+    key_value = int(time.time_ns() / 1000)
+    entity = datastore.Entity(key=datastore_client.key(index_name, key_value))
     entity.update({
         'timestamp': dt,
         'data': data
     })
     datastore_client.put(entity)
+    return key_value
 
 
 def entrypoint(request):
@@ -37,12 +40,13 @@ def entrypoint(request):
     dtnow = datetime.now()
     original_rows = to_original_dict(values_all)
     action_items = to_action_items(original_rows)
-    store_data(dtnow, original_rows)
+    schedule_id = store_data(dtnow, action_items)
+    full_url = f"{mailsender_function_url}?schedule_id={schedule_id}"
     context = {
         "creation_time": datetime.now(),
         "original_rows": original_rows,
         "action_items": action_items,
-        "mailsender_function_url": mailsender_function_url
+        "mailsender_function_url": full_url
     }
     page = get_html_page(context)
     return page
