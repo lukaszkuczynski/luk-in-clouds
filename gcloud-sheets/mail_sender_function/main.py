@@ -1,9 +1,17 @@
 import os
 from datetime import datetime
+from unittest import result
 from google.cloud import datastore
 import json
 
 datastore_client = datastore.Client()
+
+
+def get_schedule_by_id(schedule_id):
+    index_name = os.getenv("INDEX_NAME")
+    schedule_key = datastore_client.key(index_name, int(schedule_id))
+    schedule = datastore_client.get(schedule_key)
+    return schedule['data']
 
 
 def entrypoint(request):
@@ -19,6 +27,15 @@ def entrypoint(request):
 
         return ('', 204, headers)
 
+    request_args = request.args
+    if request_args and 'schedule_id' in request_args:
+        schedule_id = request_args['schedule_id']
+    else:
+        raise Exception("schedule_id key is required")
+
+    schedule = get_schedule_by_id(schedule_id)
+    print(schedule)
+
     # Set CORS headers for the main request
     headers = {
         'Access-Control-Allow-Origin': '*',
@@ -26,7 +43,9 @@ def entrypoint(request):
     }
 
     sent_result = {
-        "result": True
+        "result": True,
+        "data": schedule
     }
     sent_resp = json.dumps(sent_result)
+
     return (sent_resp, 200, headers)
