@@ -3,3 +3,4 @@ google-auth-httplib2
 google-auth-oauthlib
 google-cloud-datastore==2.4.0
 Jinja2
+sendgrid>=6.9.6

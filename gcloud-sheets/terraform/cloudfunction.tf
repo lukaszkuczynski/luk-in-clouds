@@ -50,7 +50,9 @@ resource "google_cloudfunctions_function" "mail_sender_function" {
   entry_point           = "entrypoint"
 
   environment_variables = {
-    INDEX_NAME = var.index_name
+    INDEX_NAME       = var.index_name
+    MAIL_FROM        = var.mail_from
+    SENDGRID_API_KEY = var.sendgrid_api_key
   }
 }
 
