@@ -11,10 +11,14 @@
     <script>
         $(document).ready(function () {
             $("#sendemails").on("click", function () {
+                $("#sendemails").prop('disabled', true)
                 url = '{{mailsender_function_url}}'
                 $.getJSON(url, function (data) {
+                    $("#sendemails").prop('disabled', false)
+                    txt_result = JSON.stringify(data['result'])
                     console.log('result is');
                     console.log(data)
+                    $('p#result').text(txt_result)
                 });
             });
         });
@@ -115,7 +119,7 @@
     </table>
 
     <button id="sendemails">send it</button>
-    <p></p>
+    <p id="result"></p>
 
 
 </body>
