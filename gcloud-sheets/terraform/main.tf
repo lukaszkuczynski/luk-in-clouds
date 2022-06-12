@@ -1,4 +1,4 @@
 provider "google" {
-  project     = "wroeng"
-  region      = "europe-central2"
+  project = "wroeng"
+  region  = "europe-central2"
 }

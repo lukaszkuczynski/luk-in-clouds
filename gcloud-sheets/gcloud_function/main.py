@@ -1,17 +1,15 @@
 import os
 from datetime import datetime
-from googleapiclient.discovery import build
-import google.auth
 from google.cloud import datastore
 from datetime import datetime
-from dataextractor import to_action_items, to_original_dict
+from dataextractor import to_action_items, to_original_dict, validate_action_items
 from printer import get_html_page
 import time
+from googleapiclient.discovery import build
+import google.auth
 
-datastore_client = datastore.Client()
 
-
-def store_data(dt, data):
+def store_data(datastore_client, dt, data):
     index_name = os.getenv("INDEX_NAME")
     key_value = int(time.time_ns() / 1000)
     entity = datastore.Entity(key=datastore_client.key(index_name, key_value))
@@ -24,6 +22,8 @@ def store_data(dt, data):
 
 
 def entrypoint(request):
+
+    datastore_client = datastore.Client()
 
     credentials, project_id = google.auth.default(
         scopes=['https://www.googleapis.com/auth/spreadsheets'])
@@ -40,13 +40,15 @@ def entrypoint(request):
     dtnow = datetime.now()
     original_rows = to_original_dict(values_all)
     action_items = to_action_items(original_rows)
-    schedule_id = store_data(dtnow, action_items)
+    validation_result = validate_action_items(action_items)
+    schedule_id = store_data(datastore_client, dtnow, action_items)
     full_url = f"{mailsender_function_url}?schedule_id={schedule_id}"
     context = {
         "creation_time": datetime.now(),
         "original_rows": original_rows,
         "action_items": action_items,
-        "mailsender_function_url": full_url
+        "mailsender_function_url": full_url,
+        "validation_result": validation_result
     }
     page = get_html_page(context)
     return page

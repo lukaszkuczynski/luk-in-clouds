@@ -118,8 +118,23 @@
 
     </table>
 
-    <button id="sendemails">send it</button>
+
+    <button id="sendemails" {% if not validation_result[0] %} disabled {% endif %}>send it</button>
     <p id="result"></p>
+
+    {% if validation_result[0] == False %}
+    <h3>There were some validation errors</h3>
+    <p id="validation_result">
+    <ul>
+        {% for error in validation_result[1] %}
+        <li>
+            {{error}}
+        </li>
+        {% endfor %}
+    </ul>
+
+    </p>
+    {% endif %}
 
 
 </body>
