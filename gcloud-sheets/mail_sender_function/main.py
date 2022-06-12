@@ -19,7 +19,7 @@ def send_all(schedule):
     mail_from = os.getenv("MAIL_FROM")
     sg_api_key = os.getenv("SENDGRID_API_KEY")
     sender = SendgridSender(mail_from, sg_api_key)
-    sender.send_all(schedule)
+    return sender.send_all(schedule)
 
 
 def entrypoint(request):
@@ -44,7 +44,7 @@ def entrypoint(request):
     schedule = get_schedule_by_id(schedule_id)
     print(schedule)
     print("sending all items")
-    send_all(schedule)
+    responses = send_all(schedule)
 
     # Set CORS headers for the main request
     headers = {
@@ -53,7 +53,7 @@ def entrypoint(request):
     }
 
     sent_result = {
-        "result": True,
+        "result": responses,
         "data": schedule
     }
     sent_resp = json.dumps(sent_result)

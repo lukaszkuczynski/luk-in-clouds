@@ -28,16 +28,21 @@ class ScheduleSender():
         pass
 
     def send_all(self, schedule_items):
+        responses = []
         for item in schedule_items:
             rendered = self.printer.print(item['template_name'], item)
-            self.do_send(item['mail_to'], item['topic'], rendered)
+            responses.append(self.do_send(
+                item['mail_to'], item['topic'], rendered))
+
+        return {val: key for (key, val) in responses}
 
 
 class ConsoleOutSender(ScheduleSender):
 
     def do_send(self, mailto, topic, content):
+        super().do_send(mailto, topic, content)
         print(content)
-        return super().do_send(mailto, topic, content)
+        return (True, mailto)
 
 
 class SendgridSender(ScheduleSender):
@@ -49,6 +54,7 @@ class SendgridSender(ScheduleSender):
 
     def do_send(self, mailto, topic, content):
         recipient = mailto
+        super().do_send(mailto, topic, content)
         data = {
             "from": {
                 "email": self.from_email,
@@ -79,11 +85,13 @@ class SendgridSender(ScheduleSender):
         response = self.sendgrid_client.client.mail.send.post(
             request_body=data)
         if response.status_code == 202:
-            return ("Email sent successfully.", 200)
-        return super().do_send(mailto, topic, content)
+            return (True, recipient)
+        else:
+            print("error while sending with SendGrid,", response.status_code)
+            return (False, recipient)
 
 
 if __name__ == '__main__':
     from test_actions import test_actions
     sender = ConsoleOutSender('luk@wp.pl')
-    sender.send_all(test_actions)
+    print(sender.send_all(test_actions))
