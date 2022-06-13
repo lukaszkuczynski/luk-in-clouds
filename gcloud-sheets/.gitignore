@@ -4,3 +4,5 @@ terraform.tfstate.backup
 *.zip
 secrets.tf
 raw_test_elements.py
+prod.tfvars
+default.tfvars

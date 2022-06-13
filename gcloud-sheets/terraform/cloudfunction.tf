@@ -1,12 +1,12 @@
 resource "google_storage_bucket" "bucket" {
-  name     = "test-bucket-luk"
+  name     = "wroeng-schedule-${terraform.workspace}"
   location = "EUROPE-CENTRAL2"
 }
 
 resource "google_storage_bucket_object" "archive" {
-  name   = "testfun.zip"
+  name   = "schedule_welcome.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "../testfun.zip"
+  source = "../schedule_welcome.zip"
 }
 
 resource "google_storage_bucket_object" "mail_sender_archive" {
@@ -16,7 +16,7 @@ resource "google_storage_bucket_object" "mail_sender_archive" {
 }
 
 resource "google_cloudfunctions_function" "welcome_page_function" {
-  name        = "schedule-welcome-page"
+  name        = "schedule-welcome-page-${terraform.workspace}"
   description = "Welcome page function"
   runtime     = "python39"
 
@@ -39,7 +39,7 @@ resource "google_cloudfunctions_function" "welcome_page_function" {
 }
 
 resource "google_cloudfunctions_function" "mail_sender_function" {
-  name        = "schedule-mail-sender"
+  name        = "schedule-mail-sender-${terraform.workspace}"
   description = "Mail sender function"
   runtime     = "python39"
 
