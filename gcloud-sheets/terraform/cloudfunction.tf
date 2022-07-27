@@ -53,6 +53,8 @@ resource "google_cloudfunctions_function" "mail_sender_function" {
     INDEX_NAME       = var.index_name
     MAIL_FROM        = var.mail_from
     SENDGRID_API_KEY = var.sendgrid_api_key
+    REPLY_TO_NAME    = var.reply_to_name
+    REPLY_TO_EMAIL   = var.reply_to_email
   }
 }
 

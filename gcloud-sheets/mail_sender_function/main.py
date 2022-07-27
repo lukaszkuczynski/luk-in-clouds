@@ -17,8 +17,10 @@ def get_schedule_by_id(schedule_id):
 
 def send_all(schedule):
     mail_from = os.getenv("MAIL_FROM")
+    reply_to_email = os.getenv("REPLY_TO_EMAIL")
+    reply_to_name = os.getenv("REPLY_TO_NAME")
     sg_api_key = os.getenv("SENDGRID_API_KEY")
-    sender = SendgridSender(mail_from, sg_api_key)
+    sender = SendgridSender(mail_from, sg_api_key, reply_to_email, reply_to_name)
     return sender.send_all(schedule)
 
 

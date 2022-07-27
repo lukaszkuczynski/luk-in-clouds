@@ -63,7 +63,7 @@ def __validate_student_action(action_item):
         action_item, 'mail_to', action_item['date'])
     if result[0] == False:
         return result
-    if "assistant" in action_item:
+    if ("assistant" in action_item) and (action_item["assistant"].strip() != ''):
         result = __validate_required_attribute(
             action_item, 'email_assist', action_item['date'])
         print(result)
@@ -114,6 +114,14 @@ if __name__ == '__main__':
         'study': '2',
         'assistant': 'baba'
     }
-    action = get_student_action(bad_row)
+    good_row = {
+        'email_task': 'zz',
+        'date': 'zzzz',
+        'item': 'item',
+        'name': 'name',
+        'study': '2',
+        'assistant': ''
+    }
+    action = get_student_action(good_row)
     result = validate_action_items([action])
     print(result)

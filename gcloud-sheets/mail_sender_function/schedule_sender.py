@@ -18,8 +18,7 @@ class MailPrinter():
 
 class ScheduleSender():
 
-    def __init__(self, from_email) -> None:
-        self.from_email = from_email
+    def __init__(self) -> None:
         self.printer = MailPrinter()
 
     @abstractmethod
@@ -46,10 +45,13 @@ class ConsoleOutSender(ScheduleSender):
 
 class SendgridSender(ScheduleSender):
 
-    def __init__(self, from_email, sg_api_key) -> None:
+    def __init__(self, from_email, sg_api_key, reply_to_email=None, reply_to_name=None) -> None:
         import sendgrid
         self.sendgrid_client = sendgrid.SendGridAPIClient(sg_api_key)
-        super().__init__(from_email)
+        self.from_email = from_email
+        self.reply_to_email = reply_to_email or from_email
+        self.reply_to_name = reply_to_name or from_email
+        super().__init__()
 
     def do_send(self, mailto, topic, content):
         recipient = mailto
@@ -60,8 +62,8 @@ class SendgridSender(ScheduleSender):
                 "name": self.from_email
             },
             "reply_to": {
-                "email": self.from_email,
-                "name": self.from_email
+                "email": self.reply_to_email,
+                "name": self.reply_to_name
             },
             "content": [
                 {
