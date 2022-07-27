@@ -4,3 +4,4 @@ google-auth-oauthlib
 google-cloud-datastore==2.4.0
 Jinja2
 sendgrid>=6.9.6
+protobuf==3.20.1 

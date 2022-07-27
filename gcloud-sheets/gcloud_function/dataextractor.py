@@ -16,18 +16,20 @@ def get_student_action(row):
         'item': row['item'],
         'name': row['name'],
         'study': row['study'],
-        'template_name': 'student'
+        'template_name': 'student',
+        'assistant': row['assistant'],
+        'email_assist': row.get('email_assist')
     }
 
 
 def get_assistant_action(row):
     return {
-        'mail_to': row['email_assist'],
+        'mail_to': row.get('email_assist'),
         'topic': 'Assistant in CLAM',
         'date': row['date'],
         'item': row['item'],
-        'name': row['name'],
-        'study': row['study'],
+        'name': row['assistant'],
+        'student': row['name'],
         'template_name': 'assistant'
     }
 
@@ -45,7 +47,7 @@ def to_action_items(original_dict):
 
 
 def __validate_required_attribute(action_item, attr_name, action_date=None):
-    if not action_item[attr_name] or action_item[attr_name].strip() == '':
+    if (not attr_name in action_item) or (action_item[attr_name] is None) or (action_item[attr_name].strip() == ''):
         msg = f"'{attr_name}' attribute should be set!"
         if action_date:
             msg += f" For date of {action_date}."
@@ -61,6 +63,12 @@ def __validate_student_action(action_item):
         action_item, 'mail_to', action_item['date'])
     if result[0] == False:
         return result
+    if "assistant" in action_item:
+        result = __validate_required_attribute(
+            action_item, 'email_assist', action_item['date'])
+        print(result)
+        if result[0] == False:
+            return result        
     return (True, None)
 
 
@@ -93,7 +101,19 @@ if __name__ == '__main__':
     # vars = {"users": [{"link":"300300300","caption":"caption"}]}
     # html = get_template_fill(vars)
     # print(html)
-    from raw_test_elements import values as raw_test_elements
-    original_dict = to_original_dict(raw_test_elements)
-    action_items = to_action_items(original_dict)
-    print(action_items)
+    # from raw_test_elements import values as raw_test_elements
+    # original_dict = to_original_dict(raw_test_elements)
+    # action_items = to_action_items(original_dict)
+    # print(action_items)
+    bad_row = {
+        'email_task': 'zz',
+        # 'email_assist': None,
+        'date': 'zzzz',
+        'item': 'item',
+        'name': 'name',
+        'study': '2',
+        'assistant': 'baba'
+    }
+    action = get_student_action(bad_row)
+    result = validate_action_items([action])
+    print(result)

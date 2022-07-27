@@ -33,7 +33,6 @@ class ScheduleSender():
             rendered = self.printer.print(item['template_name'], item)
             responses.append(self.do_send(
                 item['mail_to'], item['topic'], rendered))
-
         return {val: key for (key, val) in responses}
 
 
