@@ -1,7 +1,6 @@
-
-resource "aws_sfn_state_machine" "sfn_state_machine" {
-  name     = "${var.project_name}-state-machine"
-  role_arn = aws_iam_role.state_machine_role.arn
+resource "aws_sfn_state_machine" "sfn_state_machine_2" {
+  name     = "${var.project_name}-state-machine-parallel-caught"
+  role_arn = aws_iam_role.state_machine_role_2.arn
 
   definition = <<EOF
 {
@@ -44,6 +43,14 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           }
         }      
       ],
+      "Catch": [ {
+              "ErrorEquals": [ "States.ALL" ],
+            "Next": "fallback"
+         } ],
+      "Next": "second_parallel"
+    },
+    "fallback": {
+      "Type": "Pass",
       "Next": "second_parallel"
     },
     "second_parallel": {
@@ -98,8 +105,8 @@ EOF
 
 
 
-resource "aws_iam_role" "state_machine_role" {
-  name = "state_machine_${var.project_name}"
+resource "aws_iam_role" "state_machine_role_2" {
+  name = "state_machine_${var.project_name}_2"
 
   assume_role_policy = <<EOF
 {
@@ -117,27 +124,7 @@ resource "aws_iam_role" "state_machine_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "stepfunctions_attachment_step" {
+resource "aws_iam_role_policy_attachment" "stepfunctions_attachment_step_2" {
   policy_arn = "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
-  role       = aws_iam_role.state_machine_role.id
+  role       = aws_iam_role.state_machine_role_2.id
 }
-
-resource "aws_iam_role_policy" "sf_policies" {
-  role   = aws_iam_role.state_machine_role.name
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "glue:GetTable",
-        "glue:GetPartitions"
-      ],
-      "Effect": "Allow",
-      "Resource": "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
-    }
-  ]
-}
-EOF
-}
-
