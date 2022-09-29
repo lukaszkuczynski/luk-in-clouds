@@ -1,0 +1,40 @@
+# openapi2-functions.yaml
+swagger: '2.0'
+info:
+  title: API welcome page
+  description: welcome page
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://accounts.google.com"
+    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
+    # Optional. Replace YOUR-CLIENT-ID with your client ID
+    # x-google-audiences: "YOUR-CLIENT-ID"  
+  basicAuth:
+    type: basic
+
+security:
+  - basicAuth: []
+
+paths:
+  /welcome:
+    get:
+      security:
+        - basicAuth: []
+      summary: Greet a user
+      operationId: hello
+      x-google-backend: 
+        address: https://europe-central2-wroeng.cloudfunctions.net/schedule-welcome-page-default
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+          
