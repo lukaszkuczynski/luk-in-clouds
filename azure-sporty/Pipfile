@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 stravalib = "*"
+azure-functions = "*"
 
 [dev-packages]
 
