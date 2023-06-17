@@ -16,7 +16,7 @@
       "direction": "in",
       "name": "tokenIn",
       "dataType": "string",
-      "path": "tokens/tokenstrava.json",
+      "path": "tokens/strava_token.json",
       "connection": "AzureWebJobsStorage"
     },    
     {
@@ -29,7 +29,7 @@
       "direction": "out",
       "name": "tokenOut",
       "dataType": "string",
-      "path": "tokens/tokenstrava.json",
+      "path": "tokens/strava_token.json",
       "connection": "AzureWebJobsStorage"
     }
   ]

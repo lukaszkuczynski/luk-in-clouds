@@ -5,7 +5,7 @@ import requests
 import time
 
 
-class StravaTokenClient():
+class StravaClient():
     def __init__(self, client_id, client_secret, token_path) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
@@ -18,12 +18,12 @@ class StravaTokenClient():
         with open(self.token_path, 'w') as outfile:
             json.dump(strava_token, outfile)
 
-    def get_token(self):
+    def read_token(self):
         with open(self.token_path, 'r') as token:
             data = json.load(token)
         return data
 
-    def get_access_token(self):
+    def get_or_refresh_access_token(self):
         redirect_uri = 'http://localhost/'
         if not self.does_token_exist(self.token_path):
             request_url = f'http://www.strava.com/oauth/authorize?client_id={self.client_id}' \
@@ -43,7 +43,7 @@ class StravaTokenClient():
             self.write_token(strava_token)
 
 
-        data = self.get_token()
+        data = self.read_token()
 
         if data['expires_at'] < time.time():
             print('Refreshing token!')
@@ -51,8 +51,7 @@ class StravaTokenClient():
             strava_token = new_token.json()
             # Update the file
             self.write_token(strava_token)
-
-        data = self.get_token()
+            data = strava_token
 
         access_token = data['access_token']
         return access_token
@@ -75,6 +74,12 @@ class StravaTokenClient():
         return response
 
 
+    def get_last_activities(self):
+        access_token = self.get_or_refresh_access_token()
+        activities_url = f"https://www.strava.com/api/v3/athlete/activities?" \
+                f"access_token={access_token}"
+        response = requests.get(activities_url)
+        return response.json()[:5]
 
 
 
@@ -83,33 +88,12 @@ if __name__ == '__main__':
     client_id = os.getenv('STRAVA_CLIENT_ID')
     client_secret = os.getenv('STRAVA_CLIENT_SECRET')
     token_path = 'strava_token.json'
-    stravaTokenClient = StravaTokenClient(client_id, client_secret, token_path)
-    access_token = stravaTokenClient.get_access_token()
+    stravaTokenClient = StravaClient(client_id, client_secret, token_path)
+    access_token = stravaTokenClient.get_or_refresh_access_token()
     athlete_url = f"https://www.strava.com/api/v3/athlete?" \
                 f"access_token={access_token}"
     response = requests.get(athlete_url)
     athlete = response.json()
 
-    print('RESTful API:', athlete_url)
-    print('='* 5, 'ATHLETE INFO', '=' * 5)
-    print('Name:', athlete['firstname'], athlete['lastname'])
-    print('Gender:', athlete['sex'])
-    print('City:', athlete['city'], athlete['country'])
-    print('Strava athlete from:', athlete['created_at'])
 
-    activities_url = f"https://www.strava.com/api/v3/athlete/activities?" \
-            f"access_token={access_token}"
-    print('RESTful API:', activities_url)
-    response = requests.get(activities_url)
-    activity = response.json()[5]
 
-    print('='*5, 'SINGLE ACTIVITY', '='*5)
-    print('Athlete:', athlete['firstname'], athlete['lastname'])
-    print('Name:', activity['name'])
-    print('Date:', activity['start_date'])
-    print('Disance:', activity['distance'], 'm')
-    print('Average Speed:', activity['average_speed'], 'm/s')
-    print('Max speed:', activity['max_speed'], 'm/s')
-    print('Moving time:', round(activity['moving_time'] / 60, 2), 'minutes')
-    print('Location:', activity['location_city'], 
-        activity['location_state'], activity['location_country'])
