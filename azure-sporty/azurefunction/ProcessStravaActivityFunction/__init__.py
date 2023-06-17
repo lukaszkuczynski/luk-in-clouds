@@ -1,24 +1,12 @@
 import logging
-
+import json
 import azure.functions as func
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
+def main(req: func.HttpRequest, tokenIn: bytes, tokenOut: func.Out[bytes]) -> str:
     logging.info('Python HTTP trigger function processed a request.')
-
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+    token_read = json.loads(tokenIn)
+    logging.info(f"Read token {token_read}")
+    tokenOut.set(json.dumps(token_read))
+    logging.info(f"Token saved!")
+    return func.HttpResponse(f"This Strava func executed successfully.")

@@ -12,9 +12,25 @@
       ]
     },
     {
+      "type": "blob",
+      "direction": "in",
+      "name": "tokenIn",
+      "dataType": "string",
+      "path": "tokens/tokenstrava.json",
+      "connection": "AzureWebJobsStorage"
+    },    
+    {
       "type": "http",
       "direction": "out",
       "name": "$return"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "tokenOut",
+      "dataType": "string",
+      "path": "tokens/tokenstrava.json",
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }
