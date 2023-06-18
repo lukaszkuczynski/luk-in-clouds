@@ -4,7 +4,7 @@ import azure.functions as func
 from . import strava_client
 import os
 
-def main(req: func.HttpRequest, tokenIn: bytes, tokenOut: func.Out[bytes]) -> str:
+def main(req: func.HttpRequest, tokenIn: bytes, tokenOut: func.Out[bytes], resultFile: func.Out[bytes]) -> str:
 
     class AzureFunctionStravaClient(strava_client.StravaClient):
         def __init__(self, client_id, client_secret) -> None:
@@ -14,12 +14,11 @@ def main(req: func.HttpRequest, tokenIn: bytes, tokenOut: func.Out[bytes]) -> st
             return True
         
         def write_token(self, strava_token):
-            logging.info(f"going to write token {strava_token}")
+            logging.info(f"going to write token..")
             tokenOut.set(json.dumps(strava_token))
 
         def read_token(self):
-            logging.info(f"readingtoken {tokenIn}")
-            logging.info(f"readingtoken json {json.loads(tokenIn)}")
+            logging.info(f"token reading {tokenIn}")
             return json.loads(tokenIn)
 
     client_id = os.getenv('STRAVA_CLIENT_ID')
@@ -28,6 +27,6 @@ def main(req: func.HttpRequest, tokenIn: bytes, tokenOut: func.Out[bytes]) -> st
     activities = stravaClient.get_last_activities()
     # token_read = json.loads(tokenIn)
     logging.info(f"Read activities {activities}")
-    # tokenOut.set(json.dumps(token_read))
+    resultFile.set(json.dumps(activities))
     # logging.info(f"Token saved!")
     return func.HttpResponse(f"This Strava func executed successfully.")

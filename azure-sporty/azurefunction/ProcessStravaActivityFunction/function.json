@@ -31,6 +31,15 @@
       "dataType": "string",
       "path": "tokens/strava_token.json",
       "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "resultFile",
+      "dataType": "string",
+      "path": "tokens/result.json",
+      "connection": "AzureWebJobsStorage"
     }
+    
   ]
 }
