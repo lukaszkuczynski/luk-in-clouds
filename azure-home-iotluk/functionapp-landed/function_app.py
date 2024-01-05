@@ -7,9 +7,9 @@ import azure.functions as func
 app = func.FunctionApp()
 
 @app.route(route="HttpExample", auth_level=func.AuthLevel.ANONYMOUS)
-def HttpExample(req: func.HttpRequest) -> func.HttpResponse:
+@app.queue_output(arg_name="msg", queue_name="outqueue", connection="AzureWebJobsStorage")
+def HttpExample(req: func.HttpRequest, msg: func.Out [func.QueueMessage]) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
-
     name = req.params.get('name')
     if not name:
         try:
@@ -20,6 +20,7 @@ def HttpExample(req: func.HttpRequest) -> func.HttpResponse:
             name = req_body.get('name')
 
     if name:
+        msg.set(name)
         return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
     else:
         return func.HttpResponse(
@@ -30,5 +31,4 @@ def HttpExample(req: func.HttpRequest) -> func.HttpResponse:
 @app.route(route="HttpBigExample", auth_level=func.AuthLevel.ANONYMOUS)
 def HttpBigExample(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP BIG trigger function processed a request.')
-
     return func.HttpResponse(f"Hello, BIG")

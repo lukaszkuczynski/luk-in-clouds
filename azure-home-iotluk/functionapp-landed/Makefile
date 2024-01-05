@@ -22,3 +22,9 @@ localstart:
 
 logs:
 	func azure functionapp logstream ${FUNCTION_APP_NAME} --browser
+
+fetchsettings:
+	func azure functionapp fetch-app-settings ${FUNCTION_APP_NAME}
+
+storagequeueread:
+	echo `echo $(az storage message get --queue-name outqueue -o tsv --query '[].{Message:content}') | base64 --decode` 
