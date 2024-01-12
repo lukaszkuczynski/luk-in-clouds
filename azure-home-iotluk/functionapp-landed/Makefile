@@ -2,7 +2,7 @@ RESOURCE_GROUP_NAME := rg-home-iotluk-functionapps
 LOCATION := westeurope
 STORAGE_NAME := iotlukstorage
 FUNCTION_APP_NAME := home-iotluk-filelanded
-
+CONTAINER_NAME := iotevents
 
 storage:
 	az group create  --location ${LOCATION} --resource-group ${RESOURCE_GROUP_NAME} 
@@ -28,3 +28,6 @@ fetchsettings:
 
 storagequeueread:
 	echo `echo $(az storage message get --queue-name outqueue -o tsv --query '[].{Message:content}') | base64 --decode` 
+
+fake_data:
+	azcopy copy './test_iot_data/*' 'https://${STORAGE_NAME}.blob.core.windows.net/${CONTAINER_NAME}' --recursive

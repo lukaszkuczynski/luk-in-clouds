@@ -1,3 +1,4 @@
+# pylint disable: missing-function-docstring
 import datetime
 import json
 import logging
@@ -32,3 +33,30 @@ def HttpExample(req: func.HttpRequest, msg: func.Out [func.QueueMessage]) -> fun
 def HttpBigExample(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP BIG trigger function processed a request.')
     return func.HttpResponse(f"Hello, BIG")
+
+
+
+def validate_event(event_obj):
+    is_valid = "device" in event_obj.keys()
+    if is_valid:
+        print("Object validation successful")
+    else:
+        print("Validation ERROR!")
+    return is_valid
+
+@app.blob_trigger(arg_name="inputblob", path="iotevents/landing/{filename}",
+                               connection="AzureWebJobsStorage") 
+@app.blob_output(arg_name="outputblob",
+                path="iotevents/silver/{filename}",
+                connection="AzureWebJobsStorage")
+def BlobTrigger(inputblob: func.InputStream, outputblob: func.Out[str]):
+    logging.info(f"Python blob trigger function processed blob"
+                f"Name: {inputblob.name}"
+                f"Blob Size: {inputblob.length} bytes")
+    # blob_source_raw_name = msg.get_body().decode('utf-8')
+    # with open(blob_source_raw_name,"w+b") as local_blob:
+    #     local_blob.write(inputblob.read())
+    input_content = inputblob.read()
+    input_obj = json.loads(input_content)
+    if validate_event(input_obj):
+        outputblob.set(input_content)
