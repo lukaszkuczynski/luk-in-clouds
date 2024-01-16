@@ -11,8 +11,15 @@
             <h1 class="display-6 fw-bold text-primary">IoT Luk Dashboard</h1>            
           </div>
           <div>
-            <h2>devices will be here:....</h2>
+            <h2>devices:</h2>
+
+              <ul id="events">
+              {% for event in events %}
+                  <li>{{ event.name }}</a></li>
+              {% endfor %}
+              </ul>
           </div>
+
      </main>      
    </body>
 </html>

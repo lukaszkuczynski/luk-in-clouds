@@ -26,7 +26,7 @@ class EventReader:
 
     def query_events(self):
         container = self.database.get_container_client(self.container_name)
-        queryText = "SELECT * FROM Items e"
+        queryText = f"SELECT * FROM {self.container_name} e"
         results = container.query_items(
             query=queryText,
             # parameters=[
