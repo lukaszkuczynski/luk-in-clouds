@@ -2,6 +2,7 @@
 import datetime
 import json
 import logging
+import uuid
 
 import azure.functions as func
 
@@ -29,10 +30,25 @@ def HttpExample(req: func.HttpRequest, msg: func.Out [func.QueueMessage]) -> fun
              status_code=200
         )
 
-@app.route(route="HttpBigExample", auth_level=func.AuthLevel.ANONYMOUS)
-def HttpBigExample(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP BIG trigger function processed a request.')
-    return func.HttpResponse(f"Hello, BIG")
+@app.route(route="CreateDynamoDBDocument", auth_level=func.AuthLevel.ANONYMOUS)
+@app.cosmos_db_output(arg_name="documents", 
+                      database_name="HomeIotLuk",
+                      container_name="Events",
+                      connection="COSMOSDB_CONNECTION_SETTING")
+def CreateDynamoDBDocument(req: func.HttpRequest, documents: func.Out[func.Document]) -> func.HttpResponse:
+    logging.info('CreateDynamoDBDocument trigger function processed a request.')
+    # json_to_write = func.Document.from_json(req)
+    # if not json_to_write:
+    event_dict = {
+        "id": uuid.uuid1().hex,
+        "EventId": uuid.uuid1().hex,
+        "event": "something happened",
+        "eventTime": datetime.datetime.now().isoformat()
+    }
+    event_doc = func.Document.from_dict(event_dict)
+    resp = documents.set(event_doc)
+    print(resp)
+    return func.HttpResponse(f"Written to dynamodb")
 
 
 
