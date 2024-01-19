@@ -3,6 +3,10 @@ LOCATION := westeurope
 STORAGE_NAME := iotlukstorage
 FUNCTION_APP_NAME := home-iotluk-filelanded
 CONTAINER_NAME := iotevents
+COSMOSDB_DATABASE := HomeIotLuk
+COSMOSDB_CONTAINER := Events
+COSMOSBD_ACCOUNT := iotlukcosmos
+RESOURCE_GROUP_NAME_COSMOSDB := rg-home-iotluk
 
 storage:
 	az group create  --location ${LOCATION} --resource-group ${RESOURCE_GROUP_NAME} 
@@ -31,3 +35,7 @@ storagequeueread:
 
 fake_data:
 	azcopy copy './test_iot_data/*' 'https://${STORAGE_NAME}.blob.core.windows.net/${CONTAINER_NAME}' --recursive
+
+containerrecreate:
+	# az cosmosdb sql container delete -g ${RESOURCE_GROUP_NAME_COSMOSDB} -a ${COSMOSBD_ACCOUNT} -d ${COSMOSDB_DATABASE} -n ${COSMOSDB_CONTAINER}
+	az cosmosdb sql container create -g ${RESOURCE_GROUP_NAME_COSMOSDB} -a ${COSMOSBD_ACCOUNT} -d ${COSMOSDB_DATABASE} -n ${COSMOSDB_CONTAINER} -p /EventId

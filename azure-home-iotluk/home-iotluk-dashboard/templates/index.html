@@ -15,7 +15,7 @@
 
               <ul id="events">
               {% for event in events %}
-                  <li>{{ event.name }}</a></li>
+                  <li><i>{{ event.device }}</i> : <b>{{event.temperature}}</b></li>
               {% endfor %}
               </ul>
           </div>

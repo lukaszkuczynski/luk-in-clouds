@@ -69,10 +69,25 @@ def BlobTrigger(inputblob: func.InputStream, outputblob: func.Out[str]):
     logging.info(f"Python blob trigger function processed blob"
                 f"Name: {inputblob.name}"
                 f"Blob Size: {inputblob.length} bytes")
-    # blob_source_raw_name = msg.get_body().decode('utf-8')
-    # with open(blob_source_raw_name,"w+b") as local_blob:
-    #     local_blob.write(inputblob.read())
     input_content = inputblob.read()
     input_obj = json.loads(input_content)
     if validate_event(input_obj):
         outputblob.set(input_content)
+
+@app.blob_trigger(arg_name="inputblob", path="iotevents/silver/{filename}",
+                               connection="AzureWebJobsStorage") 
+@app.cosmos_db_output(arg_name="documents", 
+                      database_name="HomeIotLuk",
+                      container_name="Events",
+                      connection="COSMOSDB_CONNECTION_SETTING")
+def SilverBlobTrigger(inputblob: func.InputStream, documents: func.Out[func.Document]):
+    logging.info(f"Python blob trigger function processed blob"
+                f"Name: {inputblob.name}"
+                f"Blob Size: {inputblob.length} bytes")
+    input_content = inputblob.read()
+    event_dict = json.loads(input_content)
+    if "id" not in event_dict:
+        event_dict["id"] = uuid.uuid1().hex
+    event_doc = func.Document.from_dict(event_dict)
+    documents.set(event_doc)    
+
