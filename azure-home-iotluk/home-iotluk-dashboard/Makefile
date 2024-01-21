@@ -1,5 +1,5 @@
-RESOURCE_GROUP := rg-home-iotluk
-APP_NAME := home-iotluk-dashboard
+RESOURCE_GROUP := rg-home-iotluk-webapp
+APP_NAME := home-iotluk-webapp
 LOCATION := westeurope
 STORAGE_NAME := iotlukstorage
 

@@ -9,7 +9,7 @@ COSMOSBD_ACCOUNT := iotlukcosmos
 RESOURCE_GROUP_NAME_COSMOSDB := rg-home-iotluk
 
 publish:
-	func azure functionapp publish ${FUNCTION_APP_NAME}
+	func azure functionapp publish ${FUNCTION_APP_NAME} --publish-local-settings -i
 
 localstart:
 	func start

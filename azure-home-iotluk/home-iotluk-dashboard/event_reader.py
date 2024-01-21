@@ -16,10 +16,10 @@ class EventReader:
     def __init__(self, cosmos_config={}) -> None:
         if os.path.exists(ENV_FILE):
             load_dotenv()
-            cosmos_config['HOST'] = os.getenv('COSMOSDB_HOST')
-            cosmos_config['MASTER_KEY'] = os.getenv('COSMOSDB_MASTER_KEY')
-            cosmos_config['DATABASE'] = os.getenv('COSMOSDB_DATABASE')
-            cosmos_config['CONTAINER'] = os.getenv('COSMOSDB_CONTAINER')
+        cosmos_config['HOST'] = os.getenv('COSMOSDB_HOST')
+        cosmos_config['MASTER_KEY'] = os.getenv('COSMOSDB_MASTER_KEY')
+        cosmos_config['DATABASE'] = os.getenv('COSMOSDB_DATABASE')
+        cosmos_config['CONTAINER'] = os.getenv('COSMOSDB_CONTAINER')
         self.client = cosmos_client.CosmosClient(cosmos_config['HOST'], {'masterKey': cosmos_config['MASTER_KEY']})
         self.database = self.client.get_database_client(cosmos_config['DATABASE'])
         self.container_name = cosmos_config['CONTAINER']
