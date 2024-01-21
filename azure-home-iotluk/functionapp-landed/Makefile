@@ -1,25 +1,15 @@
 RESOURCE_GROUP_NAME := rg-home-iotluk-functionapps
 LOCATION := westeurope
 STORAGE_NAME := iotlukstorage
-FUNCTION_APP_NAME := home-iotluk-filelanded
+FUNCTION_APP_NAME := ${shell terraform -chdir=../terraform output -raw function_app_name}
 CONTAINER_NAME := iotevents
 COSMOSDB_DATABASE := HomeIotLuk
 COSMOSDB_CONTAINER := Events
 COSMOSBD_ACCOUNT := iotlukcosmos
 RESOURCE_GROUP_NAME_COSMOSDB := rg-home-iotluk
 
-storage:
-	az group create  --location ${LOCATION} --resource-group ${RESOURCE_GROUP_NAME} 
-	az storage account create --name ${STORAGE_NAME} --location ${LOCATION} --resource-group ${RESOURCE_GROUP_NAME} --sku Standard_LRS
-
-create:
-	az functionapp create --resource-group ${RESOURCE_GROUP} --consumption-plan-location ${LOCATION} --runtime python --runtime-version 3.9 --functions-version 4 --name ${FUNCTION_APP} --os-type linux --storage-account ${STORAGE_NAME}
-
 publish:
 	func azure functionapp publish ${FUNCTION_APP_NAME}
-
-setv2:
-	az functionapp config appsettings set --name ${FUNCTION_APP_NAME} --resource-group ${RESOURCE_GROUP_NAME} --settings AzureWebJobsFeatureFlags=EnableWorkerIndexing
 
 localstart:
 	func start
@@ -29,9 +19,11 @@ logs:
 
 fetchsettings:
 	func azure functionapp fetch-app-settings ${FUNCTION_APP_NAME}
+	func settings decrypt 
 
-storagequeueread:
-	echo `echo $(az storage message get --queue-name outqueue -o tsv --query '[].{Message:content}') | base64 --decode` 
+# TODO make them output
+get_cosmosdb_keys:
+	az cosmosdb list-connection-strings -g rg-home-iotluk-functionapps -n  homeiotlukcosmos
 
 fake_data:
 	azcopy copy './test_iot_data/*' 'https://${STORAGE_NAME}.blob.core.windows.net/${CONTAINER_NAME}' --recursive
